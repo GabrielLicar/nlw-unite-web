@@ -15,6 +15,7 @@ import { TableRow } from "./table/table-row";
 
 import { formatDistanceToNow } from "date-fns";
 import { ptBR } from "date-fns/locale";
+import { Input } from "./input";
 
 interface Attendee {
   id: string;
@@ -29,7 +30,7 @@ export function AttendeeList() {
     const url = new URL(window.location.toString());
 
     if (url.searchParams.has("search")) {
-      return url.searchParams.get("search") ?? '';
+      return url.searchParams.get("search") ?? "";
     }
 
     return "";
@@ -102,20 +103,22 @@ export function AttendeeList() {
     setCurrentPage(page + 1);
   }
 
+  function checkIn(attendeeId: string) {
+    fetch(`http://localhost:3333/attendees/${attendeeId}/check-in`);
+  }
+
   return (
     <div className="flex flex-col gap-4">
       <div className="flex gap-3 items-center">
         <h1 className="text-2xl font-bold">Participantes</h1>
-        <div className="px-3 w-72 py-1.5 border border-white/20 rounded-lg text-sm flex items-center gap-3">
-          <Search className="size-4 text-emerald-300" />
-          <input
-            onChange={onSearchInputChanged}
-            value={search}
-            className="bg-transparent placeholder:text-zinc-300 flex-1 outline-none border-0 p-0 text-sm focus:ring-0"
-            type="text"
-            placeholder="Buscar participante..."
-          />
-        </div>
+
+        <Input
+          Icon={Search}
+          onChange={onSearchInputChanged}
+          value={search}
+          type="text"
+          placeholder="Buscar participante..."
+        />
       </div>
 
       <Table>
@@ -160,7 +163,12 @@ export function AttendeeList() {
               </TableCell>
               <TableCell>
                 {attendee.checkedInAt === null ? (
-                  <span className="text-zinc-400">"Não fez check-in"</span>
+                  <button 
+                    className="text-green-light hover:underline hover:underline-offset-2"
+                    onClick={() => checkIn(attendee.id)}
+                  >
+                    Confirmar check-in
+                  </button>
                 ) : (
                   formatDistanceToNow(attendee.checkedInAt, {
                     locale: ptBR,
